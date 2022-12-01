@@ -1,0 +1,16 @@
+{
+    "python.formatting.autopep8Args": [
+        "--indent-size=2"
+    ],
+    "python.languageServer": "Pylance",
+    "python.linting.pycodestyleEnabled": true,
+    "python.analysis.typeCheckingMode": "strict",
+    "python.linting.enabled": true,
+    "python.linting.pycodestyleArgs": [
+        "--max-line-length=80",
+        "--ignore=E"
+    ],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": false,
+}
+

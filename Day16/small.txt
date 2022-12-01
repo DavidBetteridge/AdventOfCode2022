@@ -1,0 +1,4 @@
+Valve A has flow rate=1; tunnels lead to valves B
+Valve B has flow rate=0; tunnels lead to valves C
+Valve C has flow rate=1; tunnels lead to valves B
+Valve E has flow rate=1; tunnels lead to valves B
