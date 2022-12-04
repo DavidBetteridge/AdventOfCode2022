@@ -4,4 +4,3 @@ with open("Day01/data.txt") as f:
 heapq.heapify(totals)
 print("Part1", sum(heapq.nlargest(1, totals)))
 print("Part2", sum(heapq.nlargest(3, totals)))
-

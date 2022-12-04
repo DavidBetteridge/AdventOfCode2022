@@ -14,5 +14,5 @@ with open("Day03/data.txt") as f:
     second = set(line[size:])
     duplicates = first.intersection(second)
     score += sum([score_duplicate(dup) for dup in duplicates])
-    
+
 print(score)

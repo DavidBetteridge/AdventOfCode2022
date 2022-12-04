@@ -10,5 +10,5 @@ with open("Day04/data.txt") as f:
       count+=1
     elif elf2_start <= elf1_start and elf2_end >= elf1_end:
       count+=1
-    
+
 print(count)  # 536

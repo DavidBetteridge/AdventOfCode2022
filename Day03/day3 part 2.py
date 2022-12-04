@@ -15,6 +15,6 @@ with open("Day03/data.txt") as f:
     c = set(rucksacs[r+2])
     r += 3
     duplicates = a.intersection(b).intersection(c)
-    score += sum([score_duplicate(dup) for dup in duplicates])  
-    
+    score += sum([score_duplicate(dup) for dup in duplicates])
+
 print(score)
