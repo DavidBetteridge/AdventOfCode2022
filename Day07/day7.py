@@ -12,13 +12,10 @@ with open("Day07/data.txt") as f:
     if line.startswith("$ cd .."):
       path = path[:-1]
       current_path = DIR_SEP.join(path)
-      print(line, current_path)
     elif line.startswith("$ cd "):
       sub_folder = line.removeprefix("$ cd ")
       path.append(sub_folder)
       current_path = DIR_SEP.join(path)
-      print(line, current_path)
-
       if current_path not in directories:
         directories[current_path] = 0
     elif line.startswith("$ ls"):
@@ -41,10 +38,17 @@ def directory_size(directory: str, directories: Dict[str,int]) -> int:
   return directories[directory] + s
          
 
-for d in directories:
-  print(f"{d} {directories[d]} ({directory_size(d, directories)})")
-
-part1 = sum(t for d in directories 
-            if (t:= directory_size(d, directories)) <= 100000)
+sizes = {d: directory_size(d, directories) for d in directories }
+part1 = sum(size for size in sizes.values() if size <= 100000)
 print(part1)
 assert part1 == 1844187
+
+total_space = 70000000
+space_required = 30000000
+total_used = directory_size("/", directories)
+unused_space = total_space - total_used
+min_to_delete = space_required - unused_space
+sizes_in_order = sorted([size for size in sizes.values() if size >= min_to_delete ])
+part2 = sizes_in_order[0]
+print(part2)
+assert part2 == 4978279
