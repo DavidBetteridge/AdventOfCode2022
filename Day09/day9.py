@@ -1,25 +1,21 @@
-
-
 from typing import Set, Tuple, List
+
+def compare(a: int, b: int) -> int:
+  if a > b:
+    return 1
+  elif b > a:
+    return -1
+  else:
+    return 0
 
 def catch_up(head_position:Tuple[int,int], tail_position:Tuple[int,int]):
   is_touching = abs(head_position[0] - tail_position[0]) <= 1 and \
                 abs(head_position[1] - tail_position[1]) <= 1
 
   if not is_touching:
-    if head_position[0] == tail_position[0]:
-      # In the same column, so need to adjust the row
-      y_adjustment = 1 if head_position[1] > tail_position[1] else -1
-      tail_position = (tail_position[0], tail_position[1]+y_adjustment)
-    elif head_position[1] == tail_position[1]:
-      # In the same row, so need to adjust the column
-      x_adjustment = 1 if head_position[0] > tail_position[0] else -1
-      tail_position = (tail_position[0]+x_adjustment, tail_position[1])
-    else:
-      # We need to adjust both
-      y_adjustment = 1 if head_position[1] > tail_position[1] else -1
-      x_adjustment = 1 if head_position[0] > tail_position[0] else -1
-      tail_position = (tail_position[0]+x_adjustment, tail_position[1]+y_adjustment)
+    x_adjustment = compare(head_position[0], tail_position[0])
+    y_adjustment = compare(head_position[1], tail_position[1])
+    tail_position = (tail_position[0]+x_adjustment, tail_position[1]+y_adjustment)
   return tail_position
 
 def solve(rope_length: int) -> int:
