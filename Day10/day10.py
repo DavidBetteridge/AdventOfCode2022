@@ -21,3 +21,11 @@ with open("Day10/data.txt") as f:
   part1 = sum(clk * register_x_history[clk] for clk in [20,60,100,140,180,220])
   print(part1)
 
+  for row in range(0, 6):
+    for column in range(0, 40):
+      middle_sprint_position = register_x_history[1 + column + (row * 40)]
+      if abs(middle_sprint_position-column) <= 1:
+        print("#", end="")
+      else:
+        print(".", end="")
+    print("")
