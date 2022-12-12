@@ -12,15 +12,15 @@ with open("Day12/data.txt") as f:
   grid = f.read().splitlines()
 
   G = nx.DiGraph()
-  source = None
+  sources = []
   target = None
   n_rows = len(grid)
   n_columns = len(grid[0])
   for row in range(n_rows):
     for column in range(n_columns):
       current = value(grid[row][column])
-      if grid[row][column] == "S":
-        source = (column,row)
+      if current == 1:
+        sources.append((column,row))
       elif grid[row][column] == "E":
         target = (column,row)
       for x_offset,y_offset in [(-1,0),(1,0),(0,-1),(0,1)]:
@@ -31,4 +31,6 @@ with open("Day12/data.txt") as f:
           if next - current <= 1:
             G.add_edge((column,row),(x,y))
 
-  print(nx.shortest_path_length(G, source, target))
+  print(min(nx.shortest_path_length(G, source, target)
+        for source in sources
+        if nx.has_path(G,source,target)))
