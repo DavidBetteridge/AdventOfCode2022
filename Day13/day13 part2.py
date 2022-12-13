@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import Any, List, Optional
+from typing import  List, Optional
 from functools import total_ordering
 
 @total_ordering
@@ -15,8 +15,9 @@ class Data:
   def __lt__(self, other: "Data"):
       return compare(self, other)
 
+json_type = int | List["json_type"]
 def parse_entry(data: str) -> Data:
-  def parse(thing: int | List[Any]) -> Data:
+  def parse(thing: json_type) -> Data:
     if isinstance(thing, int):
       return Data(thing,[])
     else:
