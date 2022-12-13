@@ -1,5 +1,6 @@
+import json
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Any, List, Optional
 from functools import total_ordering
 
 @total_ordering
@@ -15,33 +16,12 @@ class Data:
       return compare(self, other)
 
 def parse_entry(data: str) -> Data:
-  data = data.removeprefix("[").removesuffix("]")
-
-  if data == "":
-    return Data(None, [])
-
-  if data.isnumeric():
-    return Data(int(data), [])
-
-  i = 0
-  open_count = 0
-  element_start = 0
-  parts: List[Data] = []
-  while i < len(data):
-    if data[i] == "[":
-      open_count+=1
-    elif data[i] == "]":
-      open_count-=1
-    elif data[i] == "," and open_count == 0:
-      element = data[element_start:i]
-      parts.append(parse_entry(element))
-      element_start = i+1
-    i+=1
-    
-  element = data[element_start:i]
-  parts.append(parse_entry(element))
-  return Data(None, parts)
-
+  def parse(thing: int | List[Any]) -> Data:
+    if isinstance(thing, int):
+      return Data(thing,[])
+    else:
+      return Data(None, [parse(c) for c in thing])
+  return parse(json.loads(data))
 
 def compare(left: Data, right:Data) -> Optional[bool]:
   if left.value is not None and right.value is not None:
