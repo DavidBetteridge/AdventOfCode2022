@@ -1,21 +1,18 @@
 from dataclasses import dataclass
 from typing import List, Optional
-from functools import cmp_to_key 
+from functools import total_ordering
 
+@total_ordering
 @dataclass
 class Data:
   value: Optional[int]
   sub_data: List["Data"]
 
   def convert_to_list(self) -> "Data":
-    assert self.value is not None
     return Data(None, [Data(self.value,[])])
 
-  def __str__(self) -> str:
-    if self.value:
-      return str(self.value)
-    else:
-      return "[" + ",".join([str(d) for d in self.sub_data]) + "]"
+  def __lt__(self, other: "Data"):
+      return compare(self, other)
 
 def parse_entry(data: str) -> Data:
   data = data.removeprefix("[").removesuffix("]")
@@ -46,9 +43,7 @@ def parse_entry(data: str) -> Data:
   return Data(None, parts)
 
 
-
 def compare(left: Data, right:Data) -> Optional[bool]:
-  # print(f"{left} vs {right}")
   if left.value is not None and right.value is not None:
     if left.value < right.value:
       return True
@@ -59,49 +54,26 @@ def compare(left: Data, right:Data) -> Optional[bool]:
     
   if left.value is not None and right.value is None:
     left = left.convert_to_list()
-
-  if left.value is None and right.value is not None:
+  elif left.value is None and right.value is not None:
     right = right.convert_to_list()
 
-  for i in range(len(left.sub_data)):
-    if i >= len(right.sub_data):
-      # RHS has ran out of items
-      return False
-
-    cmp = compare(left.sub_data[i],right.sub_data[i])
-    if cmp == True:
+  for i in range(min(len(left.sub_data), len(right.sub_data))):
+    if left.sub_data[i] < right.sub_data[i]:
       return True
-    elif cmp == False:
+    elif left.sub_data[i] > right.sub_data[i]:
       return False
-    else:
-      # Keep checking
-      pass
   
-  # Did the lhs run out?
+  # Did a list run out of entries?
   if len(right.sub_data) > len(left.sub_data):
     return True
+  elif len(right.sub_data) < len(left.sub_data):
+    return False
 
   return None
 
-def sort_compare(left: Data, right:Data) -> int:
-  match compare(left, right):
-    case True:
-      return -1
-    case False:
-      return 1
-    case _:
-      return 0
-
 with open("Day13/data.txt") as f:
   lines = [parse_entry(p) for p in f.read().splitlines() if p != ""]
-  d1 = parse_entry("[[2]]")
-  d2 = parse_entry("[[6]]")
-  lines.append(d1)
-  lines.append(d2)
-
-  lines.sort(key=cmp_to_key(sort_compare))
-  i1 = lines.index(d1)+1
-  i2 = lines.index(d2)+1
-  print(i1*i2)
-
-
+  i1 = len([line for line in lines if line < parse_entry("[[2]]")])+1
+  i2 = len([line for line in lines if line < parse_entry("[[6]]")])+2
+  part2 = i1*i2
+  assert part2 == 21423
