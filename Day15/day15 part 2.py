@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+import time
 from typing import List, Set, Tuple
 
 
@@ -15,6 +16,8 @@ class Sensor:
 
 def distance(lhs: Location, rhs: Location)->int:
   return abs(lhs.x-rhs.x) + abs(lhs.y-rhs.y)
+
+st = time.time()
 
 pattern = r"Sensor at x=(?P<sensor_x>-?\d+), y=(?P<sensor_y>-?\d+): closest beacon is at x=(?P<beacon_x>-?\d+), y=(?P<beacon_y>-?\d+)"
 with open(r"C:\Personal\AdventOfCode2022\Day15\data.txt") as f:
@@ -49,6 +52,9 @@ with open(r"C:\Personal\AdventOfCode2022\Day15\data.txt") as f:
       if remaining >=0:
         no_beacon_xs[target_row].append((max(0,sensor.sensor.x - remaining),
                                       min(max_x, sensor.sensor.x + remaining)))
+  elapsed_time = time.time() - st
+  print('Build time:', elapsed_time, 'seconds')
+
 
   def overlaps(a:Tuple[int,int],b:Tuple[int,int]) -> bool:
     return a[0] <= (b[1]+1) and b[0] <= (a[1]+1)
@@ -58,24 +64,21 @@ with open(r"C:\Personal\AdventOfCode2022\Day15\data.txt") as f:
 
   for y in range(max_y+1):
     ranges = no_beacon_xs[y]
-    try_again = True
-
     final_ranges: List[Tuple[int,int]] = []
     while len(ranges) > 0:
       r = ranges.pop()
       for i, o in enumerate(ranges):
         if overlaps(r,o):
-          ranges.pop(i)
-          ranges.append(combine(o,r))
+          ranges[i] = combine(o,r)
           break
       else:
         final_ranges.append(r)
 
-    final_ranges = sorted(final_ranges)
-    if final_ranges[0][0] != 0 or final_ranges[0][1] != max_x:
-      tuning_frequency = ((final_ranges[0][1]+1)  * 4000000) + y
-      print(y, tuning_frequency)
-      break
-
-
-
+    if len(final_ranges) > 1:
+      final_ranges = sorted(final_ranges)
+      if final_ranges[0][0] != 0 or final_ranges[0][1] != max_x:
+        tuning_frequency = ((final_ranges[0][1]+1)  * 4000000) + y
+        print(y, tuning_frequency)
+        elapsed_time = time.time() - st
+        print('Total time:', elapsed_time, 'seconds')
+        break
