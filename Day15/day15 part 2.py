@@ -43,7 +43,7 @@ with open(r"C:\Personal\AdventOfCode2022\Day15\data.txt") as f:
 
   for sensor in sensors:
     m_dist = distance(sensor.sensor, sensor.beacon)
-    for target_row in range(max_y+1):
+    for target_row in range(max(0, sensor.sensor.y - m_dist), min(max_x, sensor.sensor.y + m_dist+1)):
       distance_to_row = abs(sensor.sensor.y - target_row)
       remaining = m_dist - distance_to_row
       if remaining >=0:
@@ -75,6 +75,7 @@ with open(r"C:\Personal\AdventOfCode2022\Day15\data.txt") as f:
     if final_ranges[0][0] != 0 or final_ranges[0][1] != max_x:
       tuning_frequency = ((final_ranges[0][1]+1)  * 4000000) + y
       print(y, tuning_frequency)
+      break
 
 
 
