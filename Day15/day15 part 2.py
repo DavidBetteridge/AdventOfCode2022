@@ -64,21 +64,31 @@ with open(r"C:\Personal\AdventOfCode2022\Day15\data.txt") as f:
 
   for y in range(max_y+1):
     ranges = no_beacon_xs[y]
-    final_ranges: List[Tuple[int,int]] = []
-    while len(ranges) > 0:
-      r = ranges.pop()
-      for i, o in enumerate(ranges):
-        if overlaps(r,o):
-          ranges[i] = combine(o,r)
+
+    for i in range(len(ranges)-1):
+      src = ranges[i]
+      for i2 in range(i+1, len(ranges)):
+        if overlaps(src,ranges[i2]):
+          ranges[i2] = combine(src,ranges[i2])
           break
       else:
-        final_ranges.append(r)
+        ranges = ranges[i:]
 
-    if len(final_ranges) > 1:
-      final_ranges = sorted(final_ranges)
-      if final_ranges[0][0] != 0 or final_ranges[0][1] != max_x:
-        tuning_frequency = ((final_ranges[0][1]+1)  * 4000000) + y
-        print(y, tuning_frequency)
-        elapsed_time = time.time() - st
-        print('Total time:', elapsed_time, 'seconds')
-        break
+        final_ranges: List[Tuple[int,int]] = []
+        while len(ranges) > 0:
+          r = ranges.pop()
+          for i, o in enumerate(ranges):
+            if overlaps(r,o):
+              ranges[i] = combine(o,r)
+              break
+          else:
+            final_ranges.append(r)
+
+        if len(final_ranges) > 1:
+          final_ranges = sorted(final_ranges)
+          if final_ranges[0][0] != 0 or final_ranges[0][1] != max_x:
+            tuning_frequency = ((final_ranges[0][1]+1)  * 4000000) + y
+            print(y, tuning_frequency)
+            elapsed_time = time.time() - st
+            print('Total time:', elapsed_time, 'seconds')
+            break
