@@ -1,3 +1,6 @@
+from collections import defaultdict
+
+
 grid = {}
 width = 7
 
@@ -9,12 +12,6 @@ rocks = [
   {"width": 2, "offsets": [(0,0),(0,1),(1,0),(1,1)]}        # Square
 ]
 
-def highest_rock_or_floor():
-  if len(grid) > 0:
-    return max(y for _,y in grid)
-  else:
-    return -1
-
 def is_valid(left_edge, bottom_edge, rock) -> bool:
   for x,y in rock["offsets"]:
     if left_edge+x < 0 or left_edge+x > 6: return False
@@ -23,7 +20,7 @@ def is_valid(left_edge, bottom_edge, rock) -> bool:
   return True
 
 def print_grid(grid):
-  for row in range(highest_rock_or_floor()+5, -1, -1):
+  for row in range(max(heights)+5, max(heights)+5-30, -1):
     for column in range(7):
       cell = grid.get((column,row)," ")
       print(cell,end="")
@@ -36,19 +33,20 @@ def apply(grid, left_edge, bottom_edge, rock):
     t[(left_edge+x,bottom_edge+y)]="@"
   return t
 
-with open(r"Day17/data.txt") as f:
+with open(r"C:\Personal\AdventOfCode2022\Day17\data.txt") as f:
   jets = f.read()
-
 jet_index = 0
 rock_index = 0
+heights = [-1] * 7
+heights_by_rocks = {}
 
-for _ in range(2022):
+for i in range(10000):
   rock = rocks[rock_index]
   rock_index = (rock_index + 1)
   if rock_index == len(rocks):
     rock_index = 0
 
-  highest_rock = highest_rock_or_floor()
+  highest_rock = max(heights)
   bottom_edge = highest_rock + 4
   left_edge = 2
   right_edge = left_edge + rock["width"] - 1
@@ -77,5 +75,48 @@ for _ in range(2022):
 
   for x,y in rock["offsets"]:
     grid[(left_edge+x,bottom_edge+y)]="#"
+    heights[left_edge+x] = max(bottom_edge+y, heights[left_edge+x])
 
-assert highest_rock_or_floor()+1 == 3147
+  heights_by_rocks[i] =  max(heights)
+
+
+# print_grid(grid)
+print(max(heights)+1)
+# assert  max(heights)+1 == 3147 #3147
+
+s=""
+for i in range(len(heights_by_rocks)-1):
+  s+=str(heights_by_rocks[i+1]-heights_by_rocks[i])
+
+
+# prefix = 0
+# for i in range(434):
+#   prefix += heights_by_rocks[i]
+
+# repeat_height = 0
+# for i in range(434, 1710):
+#   repeat_height += heights_by_rocks[i]
+
+# print(heights_by_rocks[434], heights_by_rocks[434+1710] - heights_by_rocks[434])
+
+# height at 434 == 713
+# height at 434+1710 (2143) = 713 + 2620 + 1 = 3334
+# height at 434+1710+1710 (3854) = 713 + 2620 + 2620 + 1= 5953
+# height at 434+1710+1710+1710 (5564) = 713 + 2620 + 2620 + 2620 + 1= 8574
+
+print(heights_by_rocks[434+926] - heights_by_rocks[434])
+
+# 1000000
+# 656
+# 713 + (2620*584795321)+1025   #1532163742758
+# 713 + (2620*584795321)+1025   #1532163742758
+
+# 713 + (2620*584)+1+ 1439
+
+# 926 short
+
+# (1000000-434)-(584*1710)
+
+# (1000000-434)//1710
+# 1532232
+# 1532233
