@@ -63,30 +63,36 @@ def solve_blueprint(all_requirements: Tuple[Tuple[int,int,int],...],
     if time < time_allowed:
       # Always build Geode if we can
       requirements = all_requirements[GEODE]
-      if stock[0] >= requirements[0] and \
-        stock[1] >= requirements[1] and \
-        stock[2] >= requirements[2]:
+      if stock[ORE] >= requirements[ORE] and \
+        stock[OBSIDIAN] >= requirements[OBSIDIAN]:
         new_robots = (robots[0],robots[1],robots[2],robots[3]+1)
-        reduced_stock = (new_stock[0] - requirements[0],
-                          new_stock[1] - requirements[1],
-                          new_stock[2] - requirements[2],
+        reduced_stock = (new_stock[ORE] - requirements[ORE],
+                          new_stock[1],
+                          new_stock[OBSIDIAN] - requirements[OBSIDIAN],
                           new_stock[3])
         best = max(best,
                   solve(time,reduced_stock, new_robots))
       else:
-        if stock[ORE] < (MAX_ORE_REQUIRED) or stock[CLAY] < (MAX_CLAY_REQUIRED):
-          # Choose not to make a robot because we are saving up
+        done_something = False
+        can_create_ore = stock[ORE] >= all_requirements[ORE][ORE]
+        can_create_clay = stock[ORE] >= all_requirements[CLAY][ORE] 
+        can_create_obsidian = (stock[ORE] >= all_requirements[OBSIDIAN][ORE]) and \
+                              (stock[CLAY] >= all_requirements[OBSIDIAN][CLAY])
+        if (not can_create_ore) or (not can_create_clay) or (not can_create_obsidian):
+          # Save up
           best = max(best, solve(time, new_stock, robots))
+          done_something = True
 
         for type in range(3):
           requirements = all_requirements[type]
           worth_it = True
-          if type == CLAY and time > 19: worth_it=False
-          if type == OBSIDIAN and time > 21: worth_it=False
-          if worth_it and \
-                stock[0] >= requirements[0] and \
-                stock[1] >= requirements[1] and \
-                stock[2] >= requirements[2]:
+          if type == CLAY and (time > (time_allowed-5)): worth_it=False
+          if type == ORE and (time > (time_allowed-3)): worth_it=False
+          if type == OBSIDIAN and (time > (time_allowed-3)): worth_it=False
+          if worth_it \
+                and ((type == ORE and can_create_ore) \
+                or (type == CLAY and can_create_clay) \
+                or (type == OBSIDIAN and can_create_obsidian)):
             reduced_stock = (new_stock[0] - requirements[0],
                             new_stock[1] - requirements[1],
                             new_stock[2] - requirements[2],
@@ -99,6 +105,10 @@ def solve_blueprint(all_requirements: Tuple[Tuple[int,int,int],...],
               new_robots = (robots[0],robots[1],robots[2]+1,robots[3])
             best = max(best,
                       solve(time,reduced_stock, new_robots))
+            done_something = True
+        if not done_something:
+          best = max(best, solve(time, new_stock, robots))
+
     return best
   return solve(0, initial_stock, built_robots)
 
@@ -113,5 +123,5 @@ with open(r"C:\Personal\AdventOfCode2022\Day19\data.txt") as f:
     print(bp_number, best)
     quality += (bp_number * best)
   print(quality)
-  assert quality == 1725
+  assert quality == 62
 
