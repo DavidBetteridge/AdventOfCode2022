@@ -1,3 +1,4 @@
+import time
 from typing import  List, Tuple
 from functools import lru_cache
 
@@ -164,6 +165,7 @@ with open(r"C:\Personal\AdventOfCode2022\Day19\data.txt") as f:
   lines = f.read().splitlines()
 
 # Part 1
+st = time.time()
 quality=0
 for line in lines:
   bp_number, requirements = parse_line(line)
@@ -173,7 +175,11 @@ for line in lines:
 print(quality)
 assert quality == 1725
 
+elapsed_time = time.time() - st
+print('Part 1:', elapsed_time, 'seconds')
+
 # Part 2
+st = time.time()
 total=1
 for line in lines[:3]:
   bp_number, requirements = parse_line(line)
@@ -182,3 +188,6 @@ for line in lines[:3]:
   total *= best
 print(total)
 assert total == 15510
+
+elapsed_time = time.time() - st
+print('Part 2:', elapsed_time, 'seconds')

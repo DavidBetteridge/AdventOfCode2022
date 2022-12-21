@@ -40,7 +40,7 @@ def move(mix):
       prev.next = next
       next.prev = prev  
 
-with open(f"C:\Personal\AdventOfCode2022\Day20\data.txt") as f:
+with open(r"C:\Personal\AdventOfCode2022\Day20\data.txt") as f:
   tail = None
   head = None
   zero = None
