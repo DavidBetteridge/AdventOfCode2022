@@ -34,7 +34,7 @@ with open("Day22/data.txt") as f:
           if direction == "L" and x < row_start: x = len(row)-1
 
           y = row_number + y_off
-          if direction == "D" and y >= column_end: y = column_start
+          if direction == "D" and y >= (column_end+1): y = column_start
           if direction == "U" and y < column_start: y = column_end
 
           if x < len(rows[y]) and rows[y][x] == ".":
