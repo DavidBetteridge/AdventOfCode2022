@@ -24,7 +24,7 @@ def display(elves: Set[Tuple[X,Y]]):
         print(".", end="")
     print("")
 
-with open("Day23/sample.txt") as f:
+with open("Day23/data.txt") as f:
   rows = f.read().splitlines()
 
   # Elves is a set of tuples containing all the cells which contain an Elf.
@@ -43,22 +43,28 @@ south = [(-1, 1),(0, 1),(1, 1)]
 west  = [(-1, -1),(-1, 0),(-1, 1)]
 east  = [( 1, -1),( 1, 0),( 1, 1)]
 directions = [north, south, west, east]
+all_directions = [(-1,-1),(0,-1),(1,-1),
+                  (-1,0),   (1,0),
+                  (-1,1),(0,1),(1,1)]
 
-for round in range(2):
+for round in range(10):
 
   proposed: Dict[Tuple[X,Y],List[Tuple[X,Y]]] = defaultdict(list)  #TO/FROM
 
-  for elf_x, elf_y in sorted(elves):
+  for elf_x, elf_y in elves:
 
-    for direction_number in range(4):
-      direction_to_test = directions[(round + direction_number) % 4]
-      ok = all((elf_x+offset_x,elf_y+offset_y) not in elves for offset_x, offset_y in direction_to_test)
-      if ok:
-        offset_x, offset_y = direction_to_test[1]
-        proposed[(elf_x+offset_x, elf_y+offset_y)].append((elf_x, elf_y)) 
-        break
+    if any((elf_x+offset_x,elf_y+offset_y) in elves for offset_x, offset_y in all_directions):
+      for direction_number in range(4):
+        direction_to_test = directions[(round + direction_number) % 4]
+        ok = all((elf_x+offset_x,elf_y+offset_y) not in elves for offset_x, offset_y in direction_to_test)
+        if ok:
+          offset_x, offset_y = direction_to_test[1]
+          proposed[(elf_x+offset_x, elf_y+offset_y)].append((elf_x, elf_y)) 
+          break
+      else:
+        proposed[(elf_x, elf_y)].append((elf_x, elf_y))
     else:
-      proposed[(elf_x, elf_y)].append((elf_x, elf_y)) 
+      proposed[(elf_x, elf_y)].append((elf_x, elf_y))         
 
   elves.clear()
 
@@ -69,5 +75,8 @@ for round in range(2):
       for f in from_:
         elves.add(f)
 
-  display(elves)
-  print(f"== End of Round {round+1} ==")
+  # display(elves)
+  # print(f"== End of Round {round+1} ==")
+
+(left,top), (right,bottom) = bounding_box(elves)
+print(((right - left + 1) * (bottom - top + 1)) - len(elves))
