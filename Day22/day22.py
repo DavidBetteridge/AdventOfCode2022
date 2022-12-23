@@ -16,7 +16,7 @@ with open("Day22/data.txt") as f:
   n_columns = max([len(row) for row in data_rows])
   commands = rows[-1]
 
-  # Work out the length of a side on a queue.  To be completely generic
+  # Work out the length of a side on a cube.  To be completely generic
   # we should check the column heights as well,  but we don't need to for
   # our data.
   side_length = len(rows)
