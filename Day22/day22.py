@@ -1,4 +1,6 @@
+from typing import Dict, Tuple
 import networkx as nx
+from string import ascii_lowercase
 
 reverse_directions = {
   "R": "L",
@@ -9,38 +11,164 @@ reverse_directions = {
 
 with open("Day22/data.txt") as f:
   rows = f.read().splitlines()
-  n_rows = len(rows) -2
-  n_columns = max([len(row) for row in rows[:-2]])
+  data_rows =  rows[:-2]
+  n_rows = len(data_rows)
+  n_columns = max([len(row) for row in data_rows])
   commands = rows[-1]
+
+  # Work out the length of a side on a queue.  To be completely generic
+  # we should check the column heights as well,  but we don't need to for
+  # our data.
+  side_length = len(rows)
+  for row in data_rows:
+    column_start = min([i for i,c in enumerate(row) if c != " "])
+    column_end = len(row)
+    side_length = min(side_length, column_end - column_start)
+
+  # Label all the verticies on each face,  from the top-left -> bottom-right
+  vertices = {}
+  edges = set()
+  for row_number in range(0, n_rows, side_length):
+    for column_number in range(0, n_columns, side_length):
+      if column_number < len(rows[row_number]) and rows[row_number][column_number] != ' ':
+        labels = [ascii_lowercase[len(vertices)+i] for i in range(4)]
+        edges.add((labels[0],labels[1],"U"))
+        edges.add((labels[1],labels[3],"R"))
+        edges.add((labels[0],labels[2],"L"))
+        edges.add((labels[2],labels[3],"D"))
+        for col_off, row_off, label_index in [(0,0,0),(49,0,1),(0,49,2),(49,49,3)]:
+          vertices[labels[label_index]] = ((column_number+col_off, row_number+row_off))
+
+  # Ideally we would find their pairs by folding the net around a centre point
+  pairs: Dict[Tuple[str,str],Tuple[str,str]] = {
+    ("a","b"): ("u","w"),
+    ("e","f"): ("w","x"),
+    ("g","h"): ("j","l"),
+    ("f","h"): ("t","r"),
+    ("s","t"): ("v","x"),
+    ("i","k"): ("m","n"),
+    ("a","c"): ("o","m"),
+    ("u","w"): ("a","b"),
+    ("w","x"): ("e","f"),
+    ("j","l"): ("g","h"),
+    ("r","t"): ("h","f"),
+    ("v","x"): ("s","t"),
+    ("m","n"): ("i","k"),
+    ("m","o"): ("c","a"),
+  }
+
+  def find_edge(x,y, direction) -> Tuple[str,str]:
+    for v1,v2,dir in edges:
+      if dir == direction:
+        x1,y1 = vertices[v1]
+        x2,y2 = vertices[v2]
+
+        if dir in ("U", "D"):
+          if (y == y1) and ((x1 <= x <= x2) or (x2 <= x <= x1)):
+            return v1,v2
+        else:
+          if (x == x1) and ((y1 <= y <= y2) or (y2 <= y <= y1)):
+            return v1,v2
+    raise Exception("Edge not found")
+
+  def find_offset(edge, x, y):
+    v1, v2 = edge
+    x1,y1 = vertices[v1]
+    x2,y2 = vertices[v2]
+    if x1 == x2:
+      assert y1 < y2
+      distance = y - y1
+    else:
+      assert x1 < x2
+      distance = x - x1
+    assert 0 <= distance < 50
+    return distance
+
+  def apply_offset(opposite_edge, offset) -> Tuple[int, int]:
+    v1, v2 = opposite_edge
+    x1,y1 = vertices[v1]
+    x2,y2 = vertices[v2]
+
+    if x1 == x2:
+      x = x1
+      if y1 < y2:
+        y = y1 + offset
+      else:
+        y = y1 - offset
+    else:
+      if x1 < x2:
+        x = x1 + offset
+      else:
+        x = x1 - offset
+      y = y1
+
+    assert min(x1,x2) <= x <= max(x1,x2)
+    assert min(y1,y2) <= y <= max(y1,y2)
+
+    return (x,y)
+
+  def switch_side(x,y, direction):
+    edge = find_edge(x,y, direction)
+    offset = find_offset(edge, x,y)
+    opposite_edge = pairs[edge]
+    return apply_offset(opposite_edge, offset)
+
   current_location = None
   current_direction = "R"
   G = nx.DiGraph()
-  for row_number, row in enumerate(rows[:-2]):
+  for row_number, row in enumerate(data_rows):
     row_start = min(x for x, cell in enumerate(row) if cell != " ")
+    row_end = len(row)-1
+    assert row_start % side_length == 0
+    assert (row_end+1) % side_length == 0
 
     for column_number, cell in enumerate(row):
-      column_start = min(y for y, row in enumerate(rows[:-2]) if column_number < len(row) and row[column_number] != " ")
-      column_end = max(y for y, row in enumerate(rows[:-2]) if column_number < len(row) and row[column_number] != " ")
+      column_start = min(y for y, row in enumerate(data_rows) if column_number < len(row) and row[column_number] != " ")
+      column_end = max(y for y, row in enumerate(data_rows) if column_number < len(row) and row[column_number] != " ")
+      assert column_start % side_length == 0
+      assert (column_end+1) % side_length == 0
 
       if cell == ".":
         G.add_node((column_number, row_number))
         if current_location is None:
           current_location = (column_number, row_number)
 
-        dirs = [(-1,0,"L"),(1,0,"R"),(0,-1,"U"),(0,1,"D")]
-        for x_off,y_off,direction in dirs:
-          x = column_number + x_off
-          if direction == "R" and x >= len(row): x = row_start
-          if direction == "L" and x < row_start: x = len(row)-1
+        dirs = ["L","R","U","D"]
+        for direction in dirs:
 
-          y = row_number + y_off
-          if direction == "D" and y >= (column_end+1): y = column_start
-          if direction == "U" and y < column_start: y = column_end
+          if direction == "R":
+            if (column_number+1) > row_end:
+              next_column_number,next_row_number = switch_side(column_number,row_number, direction)
+            else:
+              next_row_number = row_number
+              next_column_number = column_number + 1
 
-          if x < len(rows[y]) and rows[y][x] == ".":
-            G.add_edge((column_number, row_number),(x,y),direction=direction)
-            G.add_edge((x,y), (column_number, row_number),direction=reverse_directions[direction])
+          elif direction == "L":
+            if (column_number-1) < row_start:
+              next_column_number,next_row_number = switch_side(column_number,row_number, direction)
+            else:
+              next_row_number = row_number
+              next_column_number = column_number - 1
 
+          elif direction == "U":
+            if (row_number-1) < column_start:
+              next_column_number,next_row_number = switch_side(column_number,row_number, direction)
+            else:
+              next_column_number = column_number
+              next_row_number = row_number - 1
+
+          elif direction == "D":
+            if (row_number+1) > column_end:
+              next_column_number,next_row_number = switch_side(column_number,row_number, direction)
+            else:
+              next_column_number = column_number
+              next_row_number = row_number + 1
+
+          else:
+            raise Exception("Unknown direction")
+
+          if rows[next_row_number][next_column_number] == ".":
+            G.add_edge((column_number, row_number),(next_column_number,next_row_number),direction=direction)
   moves = {
     "R": (1,0),
     "L": (-1,0),
@@ -102,4 +230,5 @@ with open("Day22/data.txt") as f:
 
   print(  (1000 * (current_location[1]+1)) + (4 * (current_location[0]+1)) + scores[current_direction])
 
-  #118380 toolow
+  #101048 toolow
+  # not 147040
