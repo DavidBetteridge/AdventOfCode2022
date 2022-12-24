@@ -51,31 +51,40 @@ X = int
 Y = int
 TIME = int
 
-queue: List[Tuple[X, Y, TIME]] = [(0,-1,0)]
-seen: Set[Tuple[X, Y, TIME]] = set()
-dirs = [(0,0),(-1,0),(1,0),(0,-1),(0,1)]
+def make_journey(from_, to_, start_time) -> int:
+  final_x, final_y = to_
+  queue: List[Tuple[X, Y, TIME]] = [(*from_,start_time)]
+  seen: Set[Tuple[X, Y, TIME]] = set()
+  dirs = [(0,0),(-1,0),(1,0),(0,-1),(0,1)]
 
-big_t = 0
-while len(queue) > 0:
-  x,y,t = queue.pop(0)
-  if (x,y,t) not in seen:
-    seen.add((x,y,t))
+  big_t = 0
+  while len(queue) > 0:
+    x,y,t = queue.pop(0)
+    if (x,y,t) not in seen:
+      seen.add((x,y,t))
 
-    if t > big_t:
-      print("time=", t, "queue=", len(queue))
-      big_t = t
+      if y == final_y and x == final_x:
+        return t
 
-    if y == (n_rows-1) and x == (n_columns-1):
-      print("Solution at time", t+1) 
-      quit()
+      for x_offset, y_offset in dirs:
+        new_x = x + x_offset
+        new_y = y + y_offset
+        if (0 <= new_x < n_columns) and (0 <= new_y < n_rows):
+            if (not row_at_time_t(new_y,t+1)[new_x]) and \
+               (not column_at_time_t(new_x,t+1)[new_y]):
+                queue.append((new_x, new_y, t+1))
+        if new_y == n_rows and new_x == (n_columns-1):
+          # Go to exit
+          queue.append((new_x, new_y, t+1))
+        if new_y == -1 and new_x == 0:
+          # Go to entrance
+          queue.append((new_x, new_y, t+1))
+  return -1
 
-    for x_offset, y_offset in dirs:
-      new_x = x + x_offset
-      new_y = y + y_offset
-      if (0 <= new_x < n_columns) and (0 <= new_y < n_rows):
-          if (not row_at_time_t(new_y,t+1)[new_x]) and \
-            (not column_at_time_t(new_x,t+1)[new_y]):
-              queue.append((new_x, new_y, t+1))
-  
-  
-
+ENTRANCE = (0, -1)
+EXIT = (n_columns-1, n_rows)
+leg1 = make_journey(ENTRANCE, EXIT, 0)
+leg2 = make_journey(EXIT, ENTRANCE, leg1)
+leg3 = make_journey(ENTRANCE, EXIT, leg2)
+print("Part1", leg1)
+print("Part2", leg3)
