@@ -2,6 +2,13 @@
 
 ## Day 1
 * `\n\n` will split lines which are seperated by blank lines into groups.
+
+```Python
+totals = [ sum([int(line) 
+               for line in block.split("\n")])
+               for block in f.read().split("\n\n")]
+```
+
 * `heapq.heapify(totals)` will convert the list `totals` into an ordered heap. We can then use `heapq.nlargest(3, totals)` to find the 3 largest values.
 
 ## Day 2
