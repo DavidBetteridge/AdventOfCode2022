@@ -133,6 +133,69 @@ exec(monkey.operation)
 new = new // 3
 ```
 
+## Day 12
+If you are given a grid,  and need to work with the cells adjacent to each cell.
+
+```Python
+for row in range(n_rows):
+  for column in range(n_columns):
+    for x_offset,y_offset in [(-1,0),(1,0),(0,-1),(0,1)]:
+      x = column + x_offset
+      y = row + y_offset
+      if (0 <= x < n_columns) and (0 <= y < n_rows):
+        pass
+```
+
+Grids however are graphs in disguise.  If you need to find the shortest path around a grid then the `networkx` library can be used.
+
+```Python
+import network as nx
+G = nx.DiGraph()
+for row in range(n_rows):
+  for column in range(n_columns):
+    for x_offset,y_offset in [(-1,0),(1,0),(0,-1),(0,1)]:
+      x = column + x_offset
+      y = row + y_offset
+      if (0 <= x < n_columns) and (0 <= y < n_rows):
+        G.add_edge((column,row),(x,y))
+
+if nx.has_path(G,source,target):
+ print(nx.shortest_path_length(G, source, target))
+```
+
+
+## Day 13
+For problems involving custom comparsions the dunder methods such as __lt__ can be defined on a class.  The other comparsion methods (gt) can be automatically defined by adding the `@total_ordering` decorator.  To use the `@total_ordering` decorator `eq` __should__ also be defined. 
+
+``` Python
+from dataclasses import dataclass
+from functools import total_ordering
+
+@total_ordering
+@dataclass
+class Data:
+  value: Optional[int]
+  sub_data: List["Data"]
+
+  def __lt__(self, other: "Data"):
+      return compare(self, other)
+```
+
+## Day 14
+Grids can also be held in dictionaries as well as in lists.
+
+`grid: Dict[Tuple[int,int], str] = defaultdict(str)`
+
+To find the bounds of the grid
+```Python
+min_x = min([x for (x,_) in grid])
+max_x = max([x for (x,_) in grid])
+min_y = min([y for (_,y) in grid])
+max_y = max([y for (_,y) in grid])
+```
+
+ 
+
 
 
 
