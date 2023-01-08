@@ -299,7 +299,7 @@ Although this is a 3D problem,  you can work out your algorithm by drawing it ou
 This was a DFS problem which required optimisation.  I used two tricks
 
 1. I added the `@lru_cache(maxsize=None)` decorator to my recursive function so it didn't need to process branches a second time.
-2. I used a variation of the `if depth_so_far >= depth:` trick above,  but this time I compared the best score so far with an estimate of the best possible score I could get from this branch.  This estimate must never underestimate it's score and otherwise a potentially winning branch might be skipped.
+2. I used a variation of the `if depth_so_far >= depth:` trick above,  but this time I compared the best score so far with an estimate of the best possible score I could get from this branch.  This estimate must never underestimate it's score as otherwise a potentially winning branch might be skipped.
 
 ```Python
 @lru_cache(maxsize=None)
