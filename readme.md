@@ -1,7 +1,7 @@
 # Python Hints and Tricks
 
 ## Day 1
-* `\n\n` will split lines which are seperated by blank lines into groups.
+* `\n\n` will split lines which are separated by blank lines into groups.
 
 ```Python
 totals = [ sum([int(line) 
@@ -36,7 +36,7 @@ ie. `ord('D') - ord('A')`
 Set operators can be used for actions such as finding duplicates.
     `duplicates = first.intersection(second)`
 
-To avoid the overheading of storing values in memory,  a generator can be used.  This has the disadvantage of being slower.
+To avoid the overhead of storing values in memory,  a generator can be used.  This has the disadvantage of being slower.
 
 ``` Python
 def splits(lines: List[str]):
@@ -172,7 +172,7 @@ if nx.has_path(G,source,target):
 
 
 ## Day 13
-For problems involving custom comparsions the dunder methods such as __lt__ can be defined on a class.  The other comparsion methods (gt) can be automatically defined by adding the `@total_ordering` decorator.  To use the `@total_ordering` decorator `eq` __should__ also be defined. 
+For problems involving custom comparisons the dunder methods such as __lt__ can be defined on a class.  The other comparison methods (gt) can be automatically defined by adding the `@total_ordering` decorator.  To use the `@total_ordering` decorator `eq` __should__ also be defined. 
 
 ``` Python
 from dataclasses import dataclass
