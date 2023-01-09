@@ -51,7 +51,7 @@ To perform integer division the `//` operator can be used.  For _integers_ this 
 To check if two ranges `(a0,b0)` and `(a1,b1)` overlap the following can be used.
 `a0 <= b1 and b0 >= a0`
 
-If you are ensure why this works,  I find it helpful to draw out each of the possible cases on paper.
+If you are unsure why this works,  I find it helpful to draw out each of the possible cases on paper.
 
 To check if either range contains the other range.
 `(a0 <= a1 and b0 >= b1) or (a1 <= a0 and b1 >= b0)`
